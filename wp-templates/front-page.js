@@ -11,24 +11,26 @@ import {
   SEO,
 } from '../components';
 
-export default function Component() {
-  const { data } = useQuery(Component.query, {
+export default function HomePage() {
+  const { loading, error, data } = useQuery(Component.query, {
     variables: Component.variables(),
   });
 
-  const { title: siteTitle, description: siteDescription } =
-    data?.generalSettings;
+  if (loading) return <p>Loading...</p>;
+
+  if (error) {
+    console.error('Error fetching data:', error);
+    return <p>Error loading data. Please try again later.</p>;
+  }
+
+  const { title: siteTitle, description: siteDescription } = data?.generalSettings;
   const primaryMenu = data?.headerMenuItems?.nodes ?? [];
   const footerMenu = data?.footerMenuItems?.nodes ?? [];
 
   return (
     <>
       <SEO title={siteTitle} description={siteDescription} />
-      <Header
-        title={siteTitle}
-        description={siteDescription}
-        menuItems={primaryMenu}
-      />
+      <Header title={siteTitle} description={siteDescription} menuItems={primaryMenu} />
       <Main>
         <Container>
           <Hero title={'LOOGA'} />
@@ -43,7 +45,7 @@ export default function Component() {
   );
 }
 
-Component.query = gql`
+HomePage.query = gql`
   ${BlogInfoFragment}
   ${NavigationMenu.fragments.entry}
   query GetPageData(
@@ -66,7 +68,7 @@ Component.query = gql`
   }
 `;
 
-Component.variables = () => {
+HomePage.variables = () => {
   return {
     headerLocation: MENUS.PRIMARY_LOCATION,
     footerLocation: MENUS.FOOTER_LOCATION,
